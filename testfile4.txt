@@ -1,0 +1,28 @@
+EMAIL OtherPerson,Newsletter,05-01-2025
+EMAIL ImportantPerson,Board Meeting Prep,05-10-2025
+EMAIL Peer,Coffee catch up,05-12-2025
+EMAIL Subordinate,Status Report,05-15-2025
+EMAIL Boss,Urgent: Client Call,05-14-2025
+EMAIL ImportantPerson,Investor Update,05-16-2025
+EMAIL OtherPerson,Win a free cruise,05-17-2025
+EMAIL Subordinate,Need approval,05-18-2025
+COUNT
+NEXT
+READ
+NEXT
+READ
+NEXT
+READ
+NEXT
+READ
+NEXT
+READ
+NEXT
+READ
+NEXT
+READ
+NEXT
+READ
+COUNT
+NEXT
+READ
