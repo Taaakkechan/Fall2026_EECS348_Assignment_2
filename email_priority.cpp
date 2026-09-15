@@ -1,3 +1,10 @@
+/*
+EECS 348 Assignment 1
+Author(s): Jun Brewer (No collaborators)
+Sources: Claude, W3Schools
+Creation date: 2026/09/14
+No revisions has been made to this program thus far
+*/
 // email_priority.cpp
 //
 // Prioritizes a CEO's inbox using a MaxHeap (array/vector-based, built from
@@ -17,13 +24,11 @@
 // Build:  g++ -std=c++17 -O2 -o email_priority email_priority.cpp
 // Run:    ./email_priority < testfile.txt
 
-#include <iostream>
-#include <sstream> // not used
-#include <string>
-#include <vector>
-#include <cctype> // not uesd
+#include <iostream> // imports iostream module
+#include <string> // imports string module
+#include <vector> // imports vector module
 
-using namespace std;
+using namespace std; // shortcut so we don't have to type std:: every time
 
 // ---------------------------------------------------------------------
 // Email record
@@ -33,7 +38,7 @@ struct Email {
     string subject;     // subject/content of the Email
     string date;         // original date string, MM-DD-YYYY
     int    categoryRank; // higher = more important
-    long   dateValue;    // comparable form of date, higher = newer // also could be int
+    int    dateValue;    // comparable form of date, higher = newer
 };
 
 // Map a sender category string to its priority rank.
@@ -48,13 +53,13 @@ int categoryRank(const string& category) {
 }
 
 // Convert MM-DD-YYYY into an integer YYYYMMDD so later dates compare larger.
-long dateToValue(const string& date) {
+int dateToValue(const string& date) {
     // Expect exactly "MM-DD-YYYY"
     int mm = 0, dd = 0, yyyy = 0; // initializes the values that we want to return
-    // Checks if the input is in the correct formatt and populating the dates value
-    // sscanf() is a c function and doesn't accept the c++ formatt for strings so we convert it using .c_str()
+    // Checks if the input is in the correct format and populating the dates value
+    // sscanf() is a c function and doesn't accept the c++ format for strings so we convert it using .c_str()
     if (sscanf(date.c_str(), "%d-%d-%d", &mm, &dd, &yyyy) == 3) {
-        return static_cast<long>(yyyy) * 10000L + mm * 100L + dd; // returns it as a single long
+        return yyyy * 10000 + mm * 100 + dd; // returns it as a single int
     }
     return 0; // malformed date - treat as oldest
 }
@@ -62,8 +67,9 @@ long dateToValue(const string& date) {
 // Returns true if 'a' has strictly higher reading priority than 'b'.
 bool hasHigherPriority(const Email& a, const Email& b) {
     // Checks if 'a' and 'b' do not have equal category rank
-    if (a.categoryRank != b.categoryRank)
+    if (a.categoryRank != b.categoryRank) {
         return a.categoryRank > b.categoryRank; // Returns true if 'a' is higher. Otherwise false
+    }
     return a.dateValue > b.dateValue; // newer email wins ties
 }
 
@@ -80,14 +86,13 @@ public:
     }
 
     // Remove and return the highest-priority email.
-    Email extractMax() {
-        Email top = data[0]; // Assingns/Stores top to the first element in vector
+    void pop() {
         data[0] = data.back(); // Replace the first element with the last
         data.pop_back(); // pop the last element
         // Checks if the vector is not empty
-        if (!data.empty())
+        if (!data.empty()) {
             heapifyDown(0); // If so downHeap the element we replace the top with
-        return top;
+        }
     }
     
     // Peek method for the MaxHeap
@@ -102,9 +107,9 @@ public:
 private:
     vector<Email> data; // Declaring the actual dataBase vector for Emails
 
-    static int parent(int i) { return (i - 1) / 2; } // Method that finds the parent of the current element
-    static int leftChild(int i) { return 2 * i + 1; } // Method that finds the leftChild of the current element
-    static int rightChild(int i) { return 2 * i + 2; } // Method that finds the rightChild of the current element
+    static int parent(int i) { return (i - 1) / 2; } // Helper Method that finds the parent of the current element
+    static int leftChild(int i) { return 2 * i + 1; } // Helper Method that finds the leftChild of the current element
+    static int rightChild(int i) { return 2 * i + 2; } // Helper Method that finds the rightChild of the current element
 
     // Logic for the UpHeaping. While the current element is bigger than its parent and is not the root, it will keep on swapping with parent.
     void heapifyUp(int i) {
@@ -120,19 +125,23 @@ private:
         int n = static_cast<int>(data.size()); // Creates a value that stores the size of the vector
         // Loops until a break gets called
         while (true) {
-            int largest = i; // Keeps track of the largest element
-            int l = leftChild(i);
-            int r = rightChild(i);
+            int largest = i; // Keeps track of the index of the largest element as it downheaps
+            int l = leftChild(i); // updates the left child
+            int r = rightChild(i); // updates the right child
 
-            if (l < n && hasHigherPriority(data[l], data[largest]))
-                largest = l;
-            if (r < n && hasHigherPriority(data[r], data[largest]))
-                largest = r;
+            // Checks if the left child index is valid, and see if parent is greater than child
+            if (l < n && hasHigherPriority(data[l], data[largest])) {
+                largest = l; // Moves the largest variable to left child
+            }
+            // Checks if the right child index is valid, and see if parent is greater than child
+            if (r < n && hasHigherPriority(data[r], data[largest])) {
+                largest = r; // Moves the largest variable to right child
+            }
 
-            if (largest == i) break;
+            if (largest == i) { break; } // If parent is greater than its children break out of loop
 
-            swap(data[i], data[largest]);
-            i = largest;
+            swap(data[i], data[largest]); // Swap values
+            i = largest; // Updates i to be the largest of the values compared
         }
     }
 };
@@ -141,38 +150,33 @@ private:
 // Helpers for parsing input lines
 // ---------------------------------------------------------------------
 static string trim(const string& s) {
-    size_t start = s.find_first_not_of(" \t\r\n");
-    if (start == string::npos) return "";
-    size_t end = s.find_last_not_of(" \t\r\n");
-    return s.substr(start, end - start + 1);
+    size_t start = s.find_first_not_of(" \t\r\n"); // trims off any leading white spaces, tabs, returns, and newlines
+    if (start == string::npos) { return ""; } // returns nothing if it start didn't find anything.
+    size_t end = s.find_last_not_of(" \t\r\n"); // trims off any trailing white spaces, tabs, returns, and newlines
+    return s.substr(start, end - start + 1); // Returns a substring(copy) of original
 }
 
 // Split "EMAIL <category>,<subject>,<date>" into its three fields.
 // Subject may contain spaces but never commas, so a simple split on
 // commas (into exactly 3 parts, first two split, remainder is date) works.
+// Returns true if parse is succesful. False if something went wrong (e.g. wrong input file format)
 static bool parseEmailLine(const string& rest, Email& outEmail) {
     // rest is everything after "EMAIL " (already trimmed of leading spaces)
-    size_t firstComma = rest.find(',');
-    if (firstComma == string::npos) return false;
+    size_t firstComma = rest.find(','); // Finds the index of the first comma located in string.
+    if (firstComma == string::npos) { return false; } // Fails parsing if it cannot find commas
 
-    size_t secondComma = rest.rfind(','); // date has no commas, subject has none either,
-                                           // so the LAST comma separates subject from date
-    if (secondComma == string::npos || secondComma == firstComma) {
-        // exactly one comma found but we need two fields separators;
-        // handle case where subject itself might be empty etc.
-        secondComma = rest.find(',', firstComma + 1);
-        if (secondComma == string::npos) return false;
-    }
+    size_t secondComma = rest.rfind(','); // Finds the index of the second comma located in string
+    if (secondComma == string::npos || secondComma == firstComma) { return false; } // Fails parsing if there is only one comma
 
-    string category = trim(rest.substr(0, firstComma));
-    string subject  = trim(rest.substr(firstComma + 1, secondComma - firstComma - 1));
-    string date     = trim(rest.substr(secondComma + 1));
+    string category = trim(rest.substr(0, firstComma)); // Cleans the first section and assigns it to category
+    string subject  = trim(rest.substr(firstComma + 1, secondComma - firstComma - 1)); // Cleans the second section and assigns it to subject
+    string date     = trim(rest.substr(secondComma + 1)); // Cleans the last section and assigns it to date
 
-    outEmail.sender       = category;
-    outEmail.subject      = subject;
-    outEmail.date         = date;
-    outEmail.categoryRank = categoryRank(category);
-    outEmail.dateValue    = dateToValue(date);
+    outEmail.sender       = category; // Populate the Emails sender section
+    outEmail.subject      = subject; // Populate the Emails subject section
+    outEmail.date         = date; // Populate the Emails date section
+    outEmail.categoryRank = categoryRank(category); // Populate the Emails categoryrank section
+    outEmail.dateValue    = dateToValue(date); // Populate the Emails dateValue section
     return true;
 }
 
@@ -180,215 +184,65 @@ static bool parseEmailLine(const string& rest, Email& outEmail) {
 // Main: read commands from stdin, drive the MaxHeap
 // ---------------------------------------------------------------------
 int main() {
-    MaxHeap inbox;
-    string line;
-
+    MaxHeap inbox; // Initiates the MaxHeap "Inbox"
+    string line; // Variable for storing the line we are processing
+    // Loops until there are no more data to read
+    // getline doesn't directly output a bool but the while can convert the logic into a bool
     while (getline(cin, line)) {
-        string trimmed = trim(line);
-        if (trimmed.empty()) continue;
+        string trimmed = trim(line); // creates a trimmed string so it is easier to read
+        if (trimmed.empty()) { continue; } // If there is nothing in the string skip the rest of the conditions and continue reading the next command line
 
+        // Looks at the very first element and executes only if it is Email
+        // Uses rfind() so it won't keep on searching to the left if it doesn't find "EMAIL"
         if (trimmed.rfind("EMAIL", 0) == 0) {
             // "EMAIL" followed by a space, then the delimited fields
             string rest = trimmed.substr(5); // strip "EMAIL"
-            rest = trim(rest);
-            Email e;
+            rest = trim(rest); // Takes out any extra spaces, tabs, and newlines
+            Email e; // Creates a new Email object
+            // populates the new Email with its properties
             if (parseEmailLine(rest, e)) {
-                inbox.insert(e);
+                inbox.insert(e); // Inserts the Email into the MaxHeap
             } else {
-                cerr << "Warning: could not parse EMAIL line: " << line << endl;
+                cerr << "Warning: could not parse EMAIL line: " << line << endl; // If parsing fails (malformed input) it returns an error instead
             }
         }
+        // Since we only expect only one string, we do not need to do rfind()
+        // Checks and runs if the program reads "Next"
         else if (trimmed == "NEXT") {
+            // If inbox is empty, ouputs a message that notifies that there are no emails in inbox rather than failing silently
             if (inbox.empty()) {
-                cout << "Next email:" << endl;
-                cout << "    No emails in inbox." << endl;
+                cout << "Next email:" << endl; // ouput
+                cout << "    No emails in inbox." << endl; // ouput
             } else {
-                const Email& e = inbox.peekMax();
-                cout << "Next email:" << endl;
-                cout << "    Sender: "  << e.sender  << endl;
-                cout << "    Subject: " << e.subject << endl;
-                cout << "    Date: "    << e.date    << endl;
+                // If inbox is not empty, it returns each value of the email
+                const Email& e = inbox.peekMax(); // looks at the root of the Maxheap(0th index) and returns that Email obejct
+                cout << "Next email:" << endl; // output
+                cout << "    Sender: "  << e.sender  << endl; // output (sender)
+                cout << "    Subject: " << e.subject << endl; // output (subject)
+                cout << "    Date: "    << e.date    << endl; // output (date)
             }
+            cout << endl; // newline
         }
+        // Checks and run if the program reads "READ"
         else if (trimmed == "READ") {
+            // Checks if there are any Emails
             if (inbox.empty()) {
-                cout << "No emails to read." << endl;
+                cout << "No emails to read." << endl; // output if there is none
+                cout << endl; // newline
             } else {
-                inbox.extractMax();
+                inbox.pop(); // pops the root
             }
         }
+        // Checks and run if the program reads "Count"
         else if (trimmed == "COUNT") {
             cout << "There are " << inbox.size() << " emails to read." << endl;
+            cout << endl; // newline
         }
+        // Edge case where none of the commands match
         else {
-            cerr << "Warning: unrecognized command: " << line << endl;
+            cerr << "Warning: unrecognized command: " << line << endl; // if none of these cases match the input, it throws an error
         }
     }
 
     return 0;
 }
-
-// gemini
-
-// #include <iostream>
-// #include <string>
-// #include <sstream>
-// #include <vector>
-// #include <iomanip>
-
-// struct Email {
-//     std::string sender;
-//     std::string subject;
-//     std::string dateStr; // Format: MM-DD-YYYY
-//     int priorityCategory;
-//     long long numericDate; // For chronological ordering (YYYYMMDD)
-
-//     // Parse date into YYYYMMDD for easy numerical comparison
-//     void parseDate() {
-//         int m, d, y;
-//         char dash1, dash2;
-//         std::stringstream ss(dateStr);
-//         ss >> m >> dash1 >> d >> dash2 >> y;
-//         numericDate = static_cast<long long>(y) * 10000 + m * 100 + d;
-//     }
-
-//     // Determine category weight: Boss (5) > Subordinate (4) > Peer (3) > ImportantPerson (2) > OtherPerson (1)
-//     void parsePriority() {
-//         if (sender == "Boss") priorityCategory = 5;
-//         else if (sender == "Subordinate") priorityCategory = 4;
-//         else if (sender == "Peer") priorityCategory = 3;
-//         else if (sender == "ImportantPerson") priorityCategory = 2;
-//         else priorityCategory = 1; // OtherPerson
-//     }
-
-//     // Returns true if this email has HIGHER priority than 'other'
-//     bool operator>(const Email& other) const {
-//         if (priorityCategory != other.priorityCategory) {
-//             return priorityCategory > other.priorityCategory;
-//         }
-//         // Newer date takes precedence over older date
-//         return numericDate > other.numericDate;
-//     }
-// };
-
-// class MaxHeap {
-// private:
-//     std::vector<Email> heap;
-
-//     void heapifyUp(int index) {
-//         while (index > 0) {
-//             int parent = (index - 1) / 2;
-//             if (heap[index] > heap[parent]) {
-//                 std::swap(heap[index], heap[parent]);
-//                 index = parent;
-//             } else {
-//                 break;
-//             }
-//         }
-//     }
-
-//     void heapifyDown(int index) {
-//         int size = heap.size();
-//         while (index < size) {
-//             int left = 2 * index + 1;
-//             int right = 2 * index + 2;
-//             int largest = index;
-
-//             if (left < size && heap[left] > heap[largest]) {
-//                 largest = left;
-//             }
-//             if (right < size && heap[right] > heap[largest]) {
-//                 largest = right;
-//             }
-
-//             if (largest != index) {
-//                 std::swap(heap[index], heap[largest]);
-//                 index = largest;
-//             } else {
-//                 break;
-//             }
-//         }
-//     }
-
-// public:
-//     void insert(const Email& email) {
-//         heap.push_back(email);
-//         heapifyUp(heap.size() - 1);
-//     }
-
-//     bool peek(Email& result) const {
-//         if (heap.empty()) return false;
-//         result = heap[0];
-//         return true;
-//     }
-
-//     bool pop() {
-//         if (heap.empty()) return false;
-//         heap[0] = heap.back();
-//         heap.pop_back();
-//         if (!heap.empty()) {
-//             heapifyDown(0);
-//         }
-//         return true;
-//     }
-
-//     size_t size() const {
-//         return heap.size();
-//     }
-
-//     bool empty() const {
-//         return heap.empty();
-//     }
-// };
-
-// // Trim leading whitespace helper
-// std::string trim(const std::string& str) {
-//     size_t start = str.find_first_not_of(" \t");
-//     return (start == std::string::npos) ? "" : str.substr(start);
-// }
-
-// int main() {
-//     MaxHeap emailQueue;
-//     std::string line;
-
-//     while (std::getline(std::cin, line)) {
-//         if (line.empty()) continue;
-
-//         if (line.rfind("EMAIL", 0) == 0) {
-//             std::string payload = trim(line.substr(5));
-//             std::stringstream ss(payload);
-//             std::string sender, subject, date;
-
-//             if (std::getline(ss, sender, ',') &&
-//                 std::getline(ss, subject, ',') &&
-//                 std::getline(ss, date)) {
-                
-//                 Email email;
-//                 email.sender = trim(sender);
-//                 email.subject = trim(subject);
-//                 email.dateStr = trim(date);
-//                 email.parsePriority();
-//                 email.parseDate();
-
-//                 emailQueue.insert(email);
-//             }
-//         } 
-//         else if (line == "COUNT") {
-//             std::cout << "There are " << emailQueue.size() << " emails to read." << std::endl;
-//         } 
-//         else if (line == "NEXT") {
-//             Email nextEmail;
-//             if (emailQueue.peek(nextEmail)) {
-//                 std::cout << "Next email:" << std::endl;
-//                 std::cout << "    Sender: " << nextEmail.sender << std::endl;
-//                 std::cout << "    Subject: " << nextEmail.subject << std::endl;
-//                 std::cout << "    Date: " << nextEmail.dateStr << std::endl;
-//             }
-//         } 
-//         else if (line == "READ") {
-//             emailQueue.pop();
-//         }
-//     }
-
-//     return 0;
-// }
